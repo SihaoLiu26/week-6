@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home · Sihao.Liu</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">Sihao.Liu</a>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span class="theme-icon"></span>
+        </button>
+        <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <img class="avatar" src="avatar.jpg" alt="Sihao Liu" />
+    <h1>Hi, I'm Sihao.Liu 👋</h1>
+    <p class="tagline">
+      A passionate student currently pursuing a Master's in Digital Education at Xi'an Jiaotong-Liverpool University (XJTLU).
+      I love adventuring behind the screen, waiting for a fish by the water, and seeing the world one trip at a time.
+      Welcome to my little corner of the web — feel free to look around!
+    </p>
+  </header>
+
+  <!-- Three Things I Love -->
+  <section class="favorites">
+    <h2 class="section-title">Three Things I Love Most</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🎮</div>
+        <h3>Playing Video Games</h3>
+        <p>Exploring virtual worlds, conquering levels, and teaming up with friends. Gaming isn't just a pastime — it's an immersive way to experience stories and see the world differently.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎣</div>
+        <h3>Fishing</h3>
+        <p>Sitting by the water, waiting for a bite — the most therapeutic kind of waiting there is. Away from the noise, with an empty mind, that quiet anticipation is a rare and precious pause in life.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">✈️</div>
+        <h3>Traveling</h3>
+        <p>Packing a bag and heading out — to see landscapes I've never seen, taste flavors I've never tried, and meet people from different walks of life. Every trip is a story I get to call my own.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="fun-fact">🐾 Fun fact: I can say "delicious" in 26 languages — but that's only so I never go hungry while traveling the world.</p>
+  </footer>
+</body>
+</html>

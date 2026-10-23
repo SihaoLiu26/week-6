@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact · Sihao.Liu</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">Sihao.Liu</a>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span class="theme-icon"></span>
+        </button>
+        <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="resume.html">Resume</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-header">
+      <h1>Get in Touch</h1>
+      <p>Want to chat about games, travel, education tech, or just say hi? I'd love to hear from you!</p>
+    </header>
+
+    <!-- Contact Cards -->
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="icon">✉️</div>
+        <h3>Email</h3>
+        <p>Sihao.Liu26@student.xjtlu.edu.cn</p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">🐙</div>
+        <h3>GitHub</h3>
+        <p>github.com/yourname</p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">💬</div>
+        <h3>WeChat</h3>
+        <p>your_wechat_id</p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">📍</div>
+        <h3>Location</h3>
+        <p>Suzhou, Jiangsu, China</p>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <form class="contact-form" onsubmit="alert('Thanks for your message! This is a demo site, so no message was actually sent.'); this.reset(); return false;">
+      <div class="form-group">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" placeholder="What should I call you?" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Your email so I can reply" required />
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="What would you like to say?" required></textarea>
+      </div>
+      <button type="submit" class="btn">Send Message</button>
+    </form>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="fun-fact">🐾 Fun fact: I can say "delicious" in 26 languages — but that's only so I never go hungry while traveling the world.</p>
+  </footer>
+</body>
+</html>

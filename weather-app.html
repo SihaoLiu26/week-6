@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Weather Now · Sihao.Liu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(160deg, #fff8f0 0%, #fdeee0 100%);
+      color: #3d2e2a;
+      min-height: 100vh;
+      padding: 28px 16px 40px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app { max-width: 440px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 20px; }
+    header .logo { font-size: 2rem; }
+    header h1 { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+    header p { color: #7a645f; font-size: 0.9rem; margin-top: 4px; }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #f0e2d4;
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: 0 8px 24px rgba(217, 119, 87, 0.12);
+    }
+    #cityInput {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 1rem;
+      padding: 10px 12px;
+      color: #3d2e2a;
+    }
+    #cityInput::placeholder { color: #b8a49d; }
+    #searchBtn {
+      border: none;
+      border-radius: 12px;
+      background: #d97757;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 12px rgba(217, 119, 87, 0.3);
+    }
+    #searchBtn:hover { background: #c45f3f; }
+    #searchBtn:active { transform: scale(0.96); }
+
+    .status {
+      text-align: center;
+      color: #7a645f;
+      font-size: 0.95rem;
+      padding: 22px 12px;
+    }
+    .status.error { color: #c0392b; }
+    .status.hidden { display: none; }
+    .loading-dots::after {
+      content: "";
+      animation: dots 1.2s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+    }
+
+    .result-card {
+      display: none;
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid #f0e2d4;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(217, 119, 87, 0.12);
+      padding: 28px 22px;
+      text-align: center;
+      animation: pop 0.35s ease;
+    }
+    .result-card.show { display: block; }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .weather-icon { font-size: 3.4rem; line-height: 1; }
+    .city-name { font-size: 1.3rem; font-weight: 700; margin-top: 10px; }
+    .temp { font-size: 3rem; font-weight: 700; color: #d97757; margin-top: 6px; }
+    .temp sup { font-size: 1.4rem; }
+    .condition { color: #7a645f; font-size: 1.05rem; margin-top: 4px; }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 22px;
+      border-top: 1px solid #f0e2d4;
+      padding-top: 18px;
+    }
+    .detail .label { font-size: 0.75rem; color: #b8a49d; }
+    .detail .value { font-size: 0.95rem; font-weight: 600; color: #3d2e2a; margin-top: 3px; }
+    .report-time { margin-top: 16px; font-size: 0.78rem; color: #b8a49d; }
+
+    @media (max-width: 480px) {
+      body { padding: 20px 12px 32px; }
+      #searchBtn { padding: 10px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">🌤️</div>
+      <h1>Weather Now</h1>
+      <p>Type a city name and get its current weather.</p>
+    </header>
+
+    <div class="search-row">
+      <input id="cityInput" type="text" placeholder="e.g. Beijing, 上海, 南宁…" autocomplete="off" />
+      <button id="searchBtn" type="button">Search</button>
+    </div>
+
+    <div id="status" class="status hidden"></div>
+
+    <div id="resultCard" class="result-card">
+      <div id="weatherIcon" class="weather-icon">☀️</div>
+      <div id="cityName" class="city-name"></div>
+      <div id="temp" class="temp"></div>
+      <div id="condition" class="condition"></div>
+      <div class="details">
+        <div class="detail">
+          <div class="label">Humidity</div>
+          <div id="humidity" class="value"></div>
+        </div>
+        <div class="detail">
+          <div class="label">Wind</div>
+          <div id="wind" class="value"></div>
+        </div>
+        <div class="detail">
+          <div class="label">Report</div>
+          <div id="reportTime" class="value"></div>
+        </div>
+      </div>
+      <div id="reportNote" class="report-time"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var API = "https://uapis.cn/api/v1/misc/weather";
+
+      var input = document.getElementById("cityInput");
+      var btn = document.getElementById("searchBtn");
+      var status = document.getElementById("status");
+      var card = document.getElementById("resultCard");
+
+      // Map the numeric weather_icon code (AMap/QWeather icon set) to an emoji
+      function iconFor(code) {
+        var n = parseInt(code, 10);
+        if (isNaN(n)) return "🌈";
+        if (n === 100) return "☀️";            // 晴
+        if (n >= 150 && n <= 153) return "🌙"; // 晴(夜)
+        if (n >= 101 && n <= 103) return "⛅"; // 多云/少云
+        if (n === 104) return "☁️";            // 阴
+        if (n >= 200 && n <= 213) return "💨"; // 风
+        if (n === 302 || n === 303 || n === 304) return "⛈️"; // 雷
+        if (n >= 300 && n <= 399) return "🌧️"; // 各类雨
+        if (n >= 400 && n <= 499) return "🌨️"; // 各类雪
+        if (n === 503 || n === 507 || n === 508) return "🌪️"; // 沙尘暴
+        if (n >= 500 && n <= 599) return "🌫️"; // 雾/霾
+        if (n === 900) return "🔥";            // 热
+        if (n === 901) return "🥶";            // 冷
+        return "🌈";                           // 未知
+      }
+
+      function showStatus(msg, isError, isLoading) {
+        card.classList.remove("show");
+        status.textContent = msg;
+        status.classList.remove("hidden");
+        status.classList.toggle("error", !!isError);
+        status.classList.toggle("loading-dots", !!isLoading);
+      }
+
+      function showResult(data) {
+        status.classList.add("hidden");
+        document.getElementById("weatherIcon").textContent = iconFor(data.weather_icon);
+        document.getElementById("cityName").textContent = data.city + (data.province && data.province !== data.city ? " · " + data.province : "");
+        document.getElementById("temp").innerHTML = data.temperature + "<sup>°C</sup>";
+        document.getElementById("condition").textContent = data.weather;
+        document.getElementById("humidity").textContent = data.humidity + "%";
+        document.getElementById("wind").textContent = data.wind_direction + " " + data.wind_power;
+        document.getElementById("reportTime").textContent = "Live";
+        document.getElementById("reportNote").textContent = data.report_time || "";
+        card.classList.add("show");
+      }
+
+      function search() {
+        var city = input.value.trim();
+        if (!city) {
+          showStatus("Enter a city first.", true, false);
+          return;
+        }
+        showStatus("Loading", false, true);
+        btn.disabled = true;
+
+        var url = API + "?city=" + encodeURIComponent(city);
+        console.log("[Weather] Request:", url);
+
+        fetch(url)
+          .then(function (res) {
+            console.log("[Weather] HTTP status:", res.status, res.statusText);
+            return res.json().then(function (data) {
+              return { ok: res.ok, status: res.status, data: data };
+            });
+          })
+          .then(function (result) {
+            console.log("[Weather] Raw API response:", result.data);
+            var data = result.data;
+
+            if (!result.ok) {
+              // HTTP-level error (4xx / 5xx) — not a "city not found" case
+              showStatus("The weather service returned an error (HTTP " + result.status + ") — try again later.", true, false);
+              return;
+            }
+            if (data.error === "LOCATION_NOT_FOUND") {
+              showStatus("Couldn't find that city — check the spelling.", true, false);
+              return;
+            }
+            if (data.error) {
+              // Other API-side errors (rate limit, bad request, etc.)
+              showStatus("The weather service reported: " + data.error + " — try again later.", true, false);
+              return;
+            }
+            if (!data.city || data.temperature == null) {
+              showStatus("The weather service returned no data — try again later.", true, false);
+              return;
+            }
+            showResult(data);
+          })
+          .catch(function (err) {
+            // fetch() itself rejected: offline, DNS failure, CORS block,
+            // or the request was blocked by an ad blocker / extension
+            console.error("[Weather] Fetch failed:", err);
+            var msg;
+            if (location.protocol === "file:") {
+              // The weather API does not allow CORS requests from file:// pages
+              // (Origin: null). The page must be served over http(s).
+              msg = "This page was opened as a local file (file://), which the weather API blocks. Please open it through a local server instead — e.g. the VS Code \"Live Server\" extension (right-click the HTML file → Open with Live Server).";
+            } else {
+              msg = "Network error — the request never reached the weather service. Check your connection, or disable any ad blocker for this page.";
+            }
+            showStatus(msg, true, false);
+          })
+          .finally(function () {
+            btn.disabled = false;
+          });
+      }
+
+      btn.addEventListener("click", search);
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") search();
+      });
+      input.focus();
+    })();
+  </script>
+</body>
+</html>
