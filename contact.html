@@ -57,7 +57,7 @@
     </div>
 
     <!-- Contact Form -->
-    <form class="contact-form" onsubmit="alert('Thanks for your message! This is a demo site, so no message was actually sent.'); this.reset(); return false;">
+    <form class="contact-form" id="contactForm">
       <div class="form-group">
         <label for="name">Your Name</label>
         <input type="text" id="name" name="name" placeholder="What should I call you?" required />
@@ -70,7 +70,8 @@
         <label for="message">Message</label>
         <textarea id="message" name="message" placeholder="What would you like to say?" required></textarea>
       </div>
-      <button type="submit" class="btn">Send Message</button>
+      <button type="submit" class="btn" id="submitBtn">Send Message</button>
+      <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
     </form>
   </main>
 
@@ -78,5 +79,55 @@
   <footer class="footer">
     <p class="fun-fact">🐾 Fun fact: I can say "delicious" in 26 languages — but that's only so I never go hungry while traveling the world.</p>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (function () {
+      var SUPABASE_URL = "https://xabbjawyrhszjxoqohpp.supabase.co";
+      var SUPABASE_KEY = "sb_publishable_xxnxmPbyhKCRz1QAAv16ag_ZC3gnpNQ";
+      var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      var form = document.getElementById("contactForm");
+      var btn = document.getElementById("submitBtn");
+      var statusEl = document.getElementById("formStatus");
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        var name = document.getElementById("name").value.trim();
+        var email = document.getElementById("email").value.trim();
+        var message = document.getElementById("message").value.trim();
+        if (!name || !email || !message) return;
+
+        var originalLabel = "Send Message";
+        btn.disabled = true;
+        btn.textContent = "Sending…";
+        statusEl.textContent = "";
+        statusEl.className = "form-status";
+
+        try {
+          var res = await client
+            .from("contacts")
+            .insert({ name: name, email: email, message: message });
+
+          if (res.error) throw res.error;
+
+          statusEl.textContent = "Thanks for your message! I'll get back to you soon. 💌";
+          statusEl.classList.add("success");
+          form.reset();
+          btn.textContent = "Sent ✓";
+          setTimeout(function () {
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+          }, 2500);
+        } catch (err) {
+          statusEl.textContent = "Sorry, something went wrong: " + (err.message || err);
+          statusEl.classList.add("error");
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
